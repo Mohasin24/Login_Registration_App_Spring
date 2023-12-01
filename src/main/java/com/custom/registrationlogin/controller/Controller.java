@@ -4,6 +4,7 @@ import com.custom.registrationlogin.service.UserDao;
 import com.custom.registrationlogin.entity.User;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -21,35 +22,23 @@ public class Controller
     {
         this.userDao = userDao;
     }
+
     @GetMapping("/")
-    public List<User> getAllUsers()
+    public ResponseEntity<List<User>> getAllUsers()
     {
         List<User> userList = userDao.getAllUsers();
-        return userList;
+        return ResponseEntity.ok(userList);
     }
 
     @GetMapping("/{userId}")
-    public User getUserById(@PathVariable Long userId)
+    public ResponseEntity<User> getUserById(@PathVariable Long userId)
     {
         User user = userDao.getUserById(userId);
-
-        return user;
+        return ResponseEntity.ok(user);
     }
 
-//    @PostMapping("/")
-//    public User addUsers(@RequestBody @Valid User user, BindingResult bindingResult) throws Exception
-//    {
-//        if(!bindingResult.hasErrors())
-//        {
-//            User dbUser = userDao.addUser(user);
-//            return dbUser;
-//        }
-//
-//        throw new ValidationException(bindingResult.getAllErrors().toString());
-//    }
-
     @PostMapping("/")
-    public ResponseEntity<Object> addUsers(@RequestBody @Valid User user, BindingResult bindingResult) throws Exception
+    public ResponseEntity<User> addUsers(@RequestBody @Valid User user, BindingResult bindingResult) throws Exception
     {
         if(!bindingResult.hasErrors())
         {
@@ -61,10 +50,11 @@ public class Controller
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteUser(@PathVariable Long userId) throws Exception
+    public ResponseEntity<String> deleteUser(@PathVariable Long userId) throws Exception
     {
         try{
             userDao.deleteUserById(userId);
+            return ResponseEntity.ok("User with id : " + userId + " successfully deleted.");
         }
         catch (Exception e)
         {
@@ -73,21 +63,29 @@ public class Controller
     }
 
     @DeleteMapping("/")
-    public void deleteAllUser(){
+    public ResponseEntity<String> deleteAllUser(){
         userDao.deleteAllUser();
+        return ResponseEntity.ok("All user's successfully deleted.");
     }
 
     @PutMapping("/{userId}")
-    public User updateUser(@PathVariable Long userId)
+    public ResponseEntity<User> updateUser(@PathVariable Long userId, @RequestBody @Valid User user)
     {
-        User user = userDao.getUserById(userId);
+        User currUser = userDao.getUserById(userId);
 
-        user.setEmail("example@gmail.com");
-        user.setFirstName("MohasinLala");
-        user.setLastName("Patel Bhai");
-        user.setPassword("12ka4");
-        user.setUsername("Mohasin Seth");
+        if (currUser == null)
+        {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
 
-        return userDao.updateUserDtls(user);
+        currUser.setUsername(user.getUsername());
+        currUser.setFirstName(user.getFirstName());
+        currUser.setLastName(user.getLastName());
+        currUser.setEmail(user.getEmail());
+        currUser.setPassword(user.getPassword());
+
+        User updatedUser = userDao.updateUserDtls(currUser);
+        ResponseEntity<User> responseEntity = new ResponseEntity<>(updatedUser, HttpStatus.OK);
+        return responseEntity;
     }
 }
