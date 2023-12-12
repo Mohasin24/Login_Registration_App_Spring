@@ -1,9 +1,7 @@
 package com.custom.registrationlogin.entity;
 
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -13,44 +11,58 @@ public class User
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "user_id")
-    private Long id;
+    private long id;
     @Column(name = "first_name")
-    @NotNull(message = "First name must be provided")
     private String firstName;
     @Column(name = "last_name")
     private  String lastName;
     @Column(name = "username")
     private String username;
     @Column(name = "email")
-    @Email(message = "Enter valid email")
     private String email;
     @Column(name = "password")
     private String password;
+
+    @Column(name = "roles")
+    private String role;
 
     /*Default constructor*/
     public User(){}
 
     /* Constructors */
-    public User(String firstName, String lastName, String username, String email, String password)
+
+    public User(String role)
     {
+        this.role =role;
+    }
+
+    public User(String firstName, String lastName, String username, String email, String password, String role) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
         this.email = email;
         this.password = password;
+        this.role = role;
     }
 
-    public User(Long id,String firstName, String lastName, String username, String email, String password)
-    {
+    public User(Long id, String firstName, String lastName, String username, String email, String password, String role) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
         this.email = email;
         this.password = password;
+        this.role = role;
     }
-    public Long getId() {
+
+    /*Getters and setters*/
+
+    public long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getFirstName() {
@@ -93,6 +105,16 @@ public class User
         this.password = password;
     }
 
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    /* toString */
+
     @Override
     public String toString() {
         return "User{" +
@@ -102,6 +124,7 @@ public class User
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
+                ", role='" + role + '\'' +
                 '}';
     }
 }
